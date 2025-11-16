@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soul Compass - Quiz Tarocchi Viaggi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div id="app"></div>
+
+    <script>
+        const questions = [
+            {
+                question: "In questo momento della tua vita, cosa senti di più?",
+                options: [
+                    { text: "Ho bisogno di ritrovare me stessa/o", value: "introspection" },
+                    { text: "Voglio nuove avventure ed emozioni", value: "adventure" },
+                    { text: "Cerco pace e guarigione", value: "healing" },
+                    { text: "Desidero crescita e trasformazione", value: "transformation" }
+                ]
+            },
+            {
+                question: "Cosa ti attrae di più in un viaggio?",
+                options: [
+                    { text: "Culture antiche e spiritualità", value: "spiritual" },
+                    { text: "Natura selvaggia e libertà", value: "nature" },
+                    { text: "Arte, bellezza e romanticismo", value: "art" },
+                    { text: "Sfide e nuove esperienze", value: "challenge" }
+                ]
+            },
+            {
+                question: "Come vuoi sentirti al ritorno?",
+                options: [
+                    { text: "Rinato/a e ispirato/a", value: "renewed" },
+                    { text: "Rilassato/a e in pace", value: "peaceful" },
+                    { text: "Energizzato/a e motivato/a", value: "energized" },
+                    { text: "Consapevole e connesso/a", value: "aware" }
+                ]
+            }
+        ];
+
+        const archetypes = {
+            "introspection-spiritual-aware": {
+                name: "L'Eremita",
+                card: "IX - L'Eremita",
+                description: "Sei in un momento di profonda ricerca interiore. Hai bisogno di solitudine sacra e riflessione.",
+                destinations: [
+                    { name: "Kyoto, Giappone", reason: "Templi zen, giardini di meditazione e l'arte della contemplazione" },
+                    { name: "Rishikesh, India", reason: "Capitale mondiale dello yoga, Gange e ashram spirituali" },
+                    { name: "Camino de Santiago, Spagna", reason: "Pellegrinaggio trasformativo nella natura e nel silenzio" }
+                ],
+                color: "from-purple-900 to-indigo-900"
+            },
+            "adventure-nature-energized": {
+                name: "Il Matto",
+                card: "0 - Il Matto",
+                description: "Sei pronto/a per il salto nel vuoto! Serve avventura pura, rischio calcolato e libertà totale.",
+                destinations: [
+                    { name: "Patagonia, Argentina", reason: "Trekking estremi, ghiacciai infiniti e natura indomita" },
+                    { name: "Islanda", reason: "Vulcani, aurore boreali e paesaggi da altro pianeta" },
+                    { name: "Nuova Zelanda", reason: "Sport estremi, natura mozzafiato e energia maori" }
+                ],
+                color: "from-orange-600 to-red-600"
+            },
+            "healing-art-peaceful": {
+                name: "La Stella",
+                card: "XVII - La Stella",
+                description: "Hai bisogno di bellezza che guarisce. Arte, pace e speranza rinnovata.",
+                destinations: [
+                    { name: "Toscana, Italia", reason: "Colline dorate, arte rinascimentale e dolcezza di vivere" },
+                    { name: "Bali, Indonesia", reason: "Templi sacri, risaie zen e rituali di purificazione" },
+                    { name: "Santorini, Grecia", reason: "Tramonti curativi, mare infinito e bellezza pura" }
+                ],
+                color: "from-blue-400 to-cyan-400"
+            },
+            "transformation-challenge-renewed": {
+                name: "La Morte",
+                card: "XIII - La Morte",
+                description: "Sei in piena trasformazione. Serve un viaggio che segni un prima e un dopo nella tua vita.",
+                destinations: [
+                    { name: "Perù - Machu Picchu", reason: "Energia inca, altitudini che trasformano, rituali ancestrali" },
+                    { name: "Egitto", reason: "Piramidi, misteri antichi e rinascita simbolica" },
+                    { name: "Nepal - Himalaya", reason: "Vette sacre, monasteri buddisti e sfida fisica totale" }
+                ],
+                color: "from-purple-600 to-pink-600"
+            },
+            "default": {
+                name: "Il Sole",
+                card: "XIX - Il Sole",
+                description: "Cerchi gioia pura e celebrazione della vita. Hai bisogno di calore, allegria e leggerezza.",
+                destinations: [
+                    { name: "Costa Rica", reason: "Pura vida, spiagge paradisiache e natura rigogliosa" },
+                    { name: "Sicilia, Italia", reason: "Mare cristallino, cibo divino e calore umano" },
+                    { name: "Zanzibar, Tanzania", reason: "Spiagge da sogno, colori vibranti e ritmo rilassato" }
+                ],
+                color: "from-yellow-400 to-orange-400"
+            }
+        };
+
+        let currentQuestion = 0;
+        let answers = [];
+        let result = null;
+
+        function getArchetype(answers) {
+            const key = answers.join('-');
+            return archetypes[key] || archetypes.default;
+        }
+
+        function handleAnswer(value) {
+            answers.push(value);
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                render();
+            } else {
+                result = getArchetype(answers);
+                render();
+            }
+        }
+
+        function restart() {
+            currentQuestion = 0;
+            answers = [];
+            result = null;
+            render();
+        }
+
+        function render() {
+            const app = document.getElementById('app');
+
+            if (result) {
+                app.innerHTML = `
+                    <div class="min-h-screen p-4 md:p-8">
+                        <div class="max-w-4xl mx-auto">
+                            <div class="bg-gradient-to-br ${result.color} rounded-3xl shadow-2xl p-8 md:p-12 text-white">
+                                <div class="text-center mb-8">
+                                    <div class="inline-block bg-white/20 backdrop-blur-sm rounded-full p-4 mb-4">
+                                        <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+                                        </svg>
+                                    </div>
+                                    <h2 class="text-4xl md:text-5xl font-bold mb-2">${result.name}</h2>
+                                    <p class="text-xl opacity-90">${result.card}</p>
+                                </div>
+
+                                <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 mb-8">
+                                    <p class="text-lg md:text-xl leading-relaxed">${result.description}</p>
+                                </div>
+
+                                <h3 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                    Le Tue Destinazioni Dell'Anima
+                                </h3>
+
+                                <div class="space-y-4 mb-8">
+                                    ${result.destinations.map(dest => `
+                                        <div class="bg-white/10 backdrop-blur-md rounded-xl p-5 hover:bg-white/20 transition-all">
+                                            <h4 class="text-xl font-bold mb-2 flex items-center gap-2">
+                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                                </svg>
+                                                ${dest.name}
+                                            </h4>
+                                            <p class="opacity-90">${dest.reason}</p>
+                                        </div>
+                                    `).join('')}
+                                </div>
+
+                                <div class="bg-gradient-to-r from-yellow-400 to-orange-500 rounded-2xl p-6 text-center mb-6">
+                                    <h3 class="text-2xl font-bold text-slate-900 mb-3">
+                                        🔮 Vuoi la Guida Completa?
+                                    </h3>
+                                    <p class="text-slate-900 mb-4 text-lg">
+                                        Scopri TUTTE le destinazioni per il tuo archetipo, consigli pratici di viaggio, periodi migliori e rituali da fare in ogni luogo
+                                    </p>
+                                    <a 
+                                        href="https://stan.store/cinzia_500" 
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="inline-block bg-slate-900 text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-slate-800 transition-all transform hover:scale-105"
+                                    >
+                                        Ottieni Soul Compass Guide - €17
+                                    </a>
+                                </div>
+
+                                <button
+                                    onclick="restart()"
+                                    class="w-full bg-white/20 hover:bg-white/30 text-white py-3 rounded-xl font-semibold transition-all"
+                                >
+                                    Rifai il Quiz
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                const q = questions[currentQuestion];
+                app.innerHTML = `
+                    <div class="min-h-screen p-4 md:p-8 flex items-center justify-center">
+                        <div class="max-w-2xl w-full">
+                            ${currentQuestion === 0 && answers.length === 0 ? `
+                                <div class="text-center mb-12 animate-fade-in">
+                                    <div class="inline-block bg-gradient-to-br from-purple-500 to-pink-500 rounded-full p-6 mb-6">
+                                        <svg class="w-20 h-20 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+                                        </svg>
+                                    </div>
+                                    <h1 class="text-5xl md:text-6xl font-bold text-white mb-4">
+                                        Soul Compass
+                                    </h1>
+                                    <p class="text-xl text-purple-200 mb-8">
+                                        Scopri quale viaggio ti serve ADESSO per la tua anima
+                                    </p>
+                                </div>
+                            ` : ''}
+
+                            <div class="bg-white/10 backdrop-blur-lg rounded-3xl shadow-2xl p-8 md:p-12">
+                                <div class="mb-8">
+                                    <div class="flex justify-between items-center mb-4">
+                                        <span class="text-purple-300 font-semibold">
+                                            Domanda ${currentQuestion + 1} di ${questions.length}
+                                        </span>
+                                        <div class="flex gap-2">
+                                            ${questions.map((_, idx) => `
+                                                <div class="h-2 w-12 rounded-full transition-all ${idx <= currentQuestion ? 'bg-purple-400' : 'bg-white/20'}"></div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                    <h2 class="text-2xl md:text-3xl font-bold text-white mb-2">
+                                        ${q.question}
+                                    </h2>
+                                </div>
+
+                                <div class="space-y-4">
+                                    ${q.options.map((option, idx) => `
+                                        <button
+                                            onclick="handleAnswer('${option.value}')"
+                                            class="w-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border-2 border-white/20 hover:border-purple-400 rounded-2xl p-6 text-left transition-all transform hover:scale-102 group"
+                                        >
+                                            <div class="flex items-center gap-4">
+                                                <div class="bg-purple-500/30 group-hover:bg-purple-500/50 rounded-xl p-3 transition-all">
+                                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                    </svg>
+                                                </div>
+                                                <span class="text-lg text-white font-medium flex-1">
+                                                    ${option.text}
+                                                </span>
+                                                <svg class="w-5 h-5 text-purple-300 opacity-0 group-hover:opacity-100 transition-opacity" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path>
+                                                </svg>
+                                            </div>
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            </div>
+
+                            <p class="text-center text-purple-300 mt-6 text-sm">
+                                ✨ Basato sui tarocchi e l'energia dei luoghi
+                            </p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        render();
+    </script>
+</body>
+</html>
